@@ -149,7 +149,8 @@ static int trim_filter_frame(AVFilterLink *inlink, AVFrame *frame)
 
     if (s->end_frame != INT64_MAX || s->end_pts != AV_NOPTS_VALUE || s->duration_tb) {
         drop = 1;
-
+        av_log(NULL,AV_LOG_DEBUG,"####end_frame: %lld nb_frames: %lld frame->pts:%lld,s->duration_tb:%lld s->first_pts:%lld,s->end_pts:%lld\n"
+            ,s->end_frame,s->nb_frames,frame->pts,s->duration_tb,s->first_pts,s->end_pts);
         if (s->end_frame != INT64_MAX && s->nb_frames < s->end_frame)
             drop = 0;
         if (s->end_pts != AV_NOPTS_VALUE && frame->pts != AV_NOPTS_VALUE &&
@@ -158,6 +159,10 @@ static int trim_filter_frame(AVFilterLink *inlink, AVFrame *frame)
         if (s->duration_tb && frame->pts != AV_NOPTS_VALUE &&
             frame->pts - s->first_pts < s->duration_tb)
             drop = 0;
+        //end frame is front frame
+        if (s->duration_tb && frame->pts != AV_NOPTS_VALUE &&
+            frame->pts >= s->duration_tb)
+            drop = 1;
 
         if (drop) {
             s->eof = 1;
