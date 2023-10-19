@@ -161,7 +161,7 @@ static int trim_filter_frame(AVFilterLink *inlink, AVFrame *frame)
             drop = 0;
         //end frame is front frame
         if (s->duration_tb && frame->pts != AV_NOPTS_VALUE &&
-            frame->pts >= s->duration_tb)
+            frame->pts >= s->duration_tb && frame->pts != s->first_pts)
             drop = 1;
 
         if (drop) {
