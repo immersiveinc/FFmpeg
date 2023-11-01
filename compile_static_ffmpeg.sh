@@ -56,20 +56,37 @@ PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --disable-examp
 PATH="$HOME/bin:$PATH" make
 make install
 
-#libfdk-aac
-cd ~/ffmpeg_sources
-git -C fdk-aac pull 2> /dev/null || git clone --depth 1 https://github.com/mstorsjo/fdk-aac
-cd fdk-aac
-autoreconf -fiv
-./configure --prefix="$HOME/ffmpeg_build" --disable-shared
-make
+
+#libsvtav1
+cd ~/ffmpeg_sources && \
+git -C SVT-AV1 pull 2> /dev/null || git clone https://gitlab.com/AOMediaCodec/SVT-AV1.git && \
+mkdir -p SVT-AV1/build && \
+cd SVT-AV1/build && \
+PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_DEC=OFF -DBUILD_SHARED_LIBS=OFF .. && \
+PATH="$HOME/bin:$PATH" make && \
 make install
+
+#libaom
+cd ~/ffmpeg_sources && \
+git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom && \
+mkdir -p aom_build && \
+cd aom_build && \
+PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on ../aom && \
+PATH="$HOME/bin:$PATH" make && \
+make install
+
+#libdav1d
+sudo apt-get install libdav1d-dev
+
+#libfdk-aac
+sudo apt-get install libfdk-aac-dev
+
 
 #ffmpeg
 cd ~/ffmpeg_sources
 git clone https://github.com/immersiveinc/FFmpeg.git
-git checkout release/5.1
-cd FFmpeg 
+cd FFmpeg
+git checkout release/5.1 
 PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
   --prefix="$HOME/ffmpeg_build" \
   --pkg-config-flags="--static" \
@@ -84,6 +101,9 @@ PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./conf
   --enable-libvpx \
   --enable-libx264 \
   --enable-libx265 \
+  --enable-libaom \
+  --enable-libsvtav1 \
+  --enable-libdav1d \
   --enable-libass \
   --enable-libfreetype \
   --enable-nonfree 
