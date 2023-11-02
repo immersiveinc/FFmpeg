@@ -90,7 +90,7 @@ make install
 
 #ffmpeg
 cd ~/ffmpeg_sources
-git clone https://github.com/immersiveinc/FFmpeg.git
+git clone https://github.com/opus-pro/FFmpeg.git
 cd FFmpeg
 git checkout release/5.1 
 PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
