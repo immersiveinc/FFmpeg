@@ -15,20 +15,12 @@ sudo apt-get -y install \
   yasm \
   zlib1g-dev \
   libass-dev \
+  libtool \
   libfreetype6-dev
 
 mkdir -p ~/ffmpeg_sources ~/bin
 
-
-#NASM
-cd ~/ffmpeg_sources
-wget https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/nasm-2.16.01.tar.bz2
-tar xjvf nasm-2.16.01.tar.bz2
-cd nasm-2.16.01
-./autogen.sh
-PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin"
-make
-make install
+sudo apt-get install nasm
 
 #libx264
 cd ~/ffmpeg_sources
@@ -56,6 +48,14 @@ PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --disable-examp
 PATH="$HOME/bin:$PATH" make
 make install
 
+#libaom
+cd ~/ffmpeg_sources && \
+git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom && \
+mkdir -p aom_build && \
+cd aom_build && \
+PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on ../aom && \
+PATH="$HOME/bin:$PATH" make && \
+make install
 
 #libsvtav1
 cd ~/ffmpeg_sources && \
@@ -66,20 +66,26 @@ PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/f
 PATH="$HOME/bin:$PATH" make && \
 make install
 
-#libaom
-cd ~/ffmpeg_sources && \
-git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom && \
-mkdir -p aom_build && \
-cd aom_build && \
-PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on ../aom && \
-PATH="$HOME/bin:$PATH" make && \
-make install
-
 #libdav1d
-sudo apt-get install libdav1d-dev
+sudo apt-get install python3-pip && \
+pip3 install --user meson
+
+cd ~/ffmpeg_sources && \
+git -C dav1d pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/dav1d.git && \
+mkdir -p dav1d/build && \
+cd dav1d/build && \
+meson setup -Denable_tools=false -Denable_tests=false --default-library=static .. --prefix "$HOME/ffmpeg_build" --libdir="$HOME/ffmpeg_build/lib" && \
+ninja && \
+ninja install
 
 #libfdk-aac
-sudo apt-get install libfdk-aac-dev
+cd ~/ffmpeg_sources && \
+git -C fdk-aac pull 2> /dev/null || git clone --depth 1 https://github.com/mstorsjo/fdk-aac && \
+cd fdk-aac && \
+autoreconf -fiv && \
+./configure --prefix="$HOME/ffmpeg_build" --disable-shared && \
+make && \
+make install
 
 
 #ffmpeg
@@ -101,9 +107,9 @@ PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./conf
   --enable-libvpx \
   --enable-libx264 \
   --enable-libx265 \
-  --enable-libaom \
+  --enable-libav1d \
   --enable-libsvtav1 \
-  --enable-libdav1d \
+  --enable-libaom \
   --enable-libass \
   --enable-libfreetype \
   --enable-nonfree 
