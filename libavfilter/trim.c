@@ -172,7 +172,7 @@ static int trim_filter_frame(AVFilterLink *inlink, AVFrame *frame)
     }
 
     s->nb_frames++;
-
+    frame->pts = frame->pts - s->first_pts;
     return ff_filter_frame(ctx->outputs[0], frame);
 
 drop:
