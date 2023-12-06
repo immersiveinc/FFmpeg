@@ -107,7 +107,7 @@ PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./conf
   --enable-libvpx \
   --enable-libx264 \
   --enable-libx265 \
-  --enable-libav1d \
+  --enable-libdav1d \
   --enable-libsvtav1 \
   --enable-libaom \
   --enable-libass \
