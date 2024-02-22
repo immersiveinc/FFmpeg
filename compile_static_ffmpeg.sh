@@ -2,6 +2,7 @@
 sudo apt-get update -qq 
 
 sudo apt-get -y install \
+  gcc \
   autoconf \
   automake \
   build-essential \
@@ -87,6 +88,14 @@ autoreconf -fiv && \
 make && \
 make install
 
+# libwebp
+cd ~/ffmpeg_sources && \
+git -C libwebp pull 2> /dev/null || git clone --depth 1 https://github.com/webmproject/libwebp.git && \
+cd libwebp && \
+./autogen.sh && \
+./configure && \
+make && \
+make install
 
 #ffmpeg
 cd ~/ffmpeg_sources
@@ -103,6 +112,7 @@ PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./conf
   --bindir="$HOME/bin" \
   --enable-static\
   --enable-gpl \
+  --enable-libwebp \
   --enable-libfdk-aac \
   --enable-libvpx \
   --enable-libx264 \
